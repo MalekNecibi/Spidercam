@@ -21,12 +21,14 @@ float eeCoords[3] = {0, 0, 0}; // Coordinates of center of End-Effector
 float lengths[4] = {0};
 // end of variable declarations
 
+
+
 void setup() {
   Serial.begin(9600);
   Serial.println("\nBegin");
-  
-  calcCoords(4, 4, 72);
+  calcLengths(36, 36, 72);
   printLens(lengths);
+  Serial.println("End");
 }
 
 void loop() {
@@ -35,16 +37,18 @@ void loop() {
 }
 
 
-void calcLenghts(float xCoord, float yCoord, float zCoord) { 
-  float *offsetCoord = calcOffsets(xCoord, yCoord, zCoord, eeSize);
+float* calcLengths(float xCoord, float yCoord, float zCoord) {
+  float *offsetEECoord = calcOffsets(xCoord, yCoord, zCoord, eeSize);
   int (*frame)[3] = (int(*)[3]) offsetFrameCoords;  // create alias for frame
   
   for (int i = 0; i < 4; i++) {
-      lengths[i] = calcLength3D(frame[i][0] - offsetCoord[0], frame[i][1] - offsetCoord[1], frame[i][2] - offsetCoord[2]);
+    lengths[i] = calcLength3D(frame[i][0] - offsetEECoord[0], frame[i][1] - offsetEECoord[1], frame[i][2] - offsetEECoord[2]);
   }
+  
   eeCoords[0] = xCoord;
   eeCoords[1] = yCoord;
   eeCoords[2] = zCoord;
+  return lengths;
 }
 
 float* calcOffsets(float xCoord, float yCoord, float zCoord, int eeSize) {
@@ -72,40 +76,4 @@ void printLens(float lengths[4]) {
   Serial.print(lengths[0]);
   Serial.print("-------------");
   Serial.println(lengths[2]);
-}
-
-bool inRange(float len, float target) {
-  return ((target - 1 < len) and (len < target + 1));
-}
-
-int* calcPower(float len[4], float target[4]) {
-    int power[4];
-    for (int i = 0; i < 4; i++) {
-        power[i] = (len[i] > target[i] == -1 : 1) * (i % 2 == 0 ? 1 : -1);
-    }
-    return power;
-}
-
-void moveEE(float x, float y, float z) {
-  float targetLen[4] = calcLengths(x, y, z);
-  int power[4];
-  &power = calcPower(len, targetLen);
-  
-  // A bottom-left (Counter-clockwise)
-  // B top-left (Clockwise)
-  // C top-right (Counter-clockwise)
-  // D bottom-right (Clockwise)
-
-  int lensDone = 0;
-  while (lensDone < 4) {
-    lensDone = 0;
-    for (int i = 0; i < 4; i++) {
-      if not inRange(len[i], targetLen[i]) {
-        // run motor[i] with power[i];
-      } else {
-        // stop motor[i]
-        lensDone++;
-      }
-    }
-  }
 }
