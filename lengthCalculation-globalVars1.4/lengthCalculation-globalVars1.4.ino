@@ -77,3 +77,39 @@ void printLens(float lengths[4]) {
   Serial.print("-------------");
   Serial.println(lengths[2]);
 }
+
+bool inRange(float len, float target) {
+  return ((target - 1 < len) and (len < target + 1));
+}
+
+int* calcPower(float len[4], float target[4]) {
+    int power[4];
+    for (int i = 0; i < 4; i++) {
+        power[i] = (len[i] > target[i] == -1 : 1) * (i % 2 == 0 ? 1 : -1);
+    }
+    return power;
+}
+
+void moveEE(float x, float y, float z) {
+  float targetLen[4] = calcLengths(x, y, z);
+  int power[4];
+  &power = calcPower(len, targetLen);
+  
+  // A bottom-left (Counter-clockwise)
+  // B top-left (Clockwise)
+  // C top-right (Counter-clockwise)
+  // D bottom-right (Clockwise)
+
+  int lensDone = 0;
+  while (lensDone < 4) {
+    lensDone = 0;
+    for (int i = 0; i < 4; i++) {
+      if not inRange(len[i], targetLen[i]) {
+        // run motor[i] with power[i];
+      } else {
+        // stop motor[i]
+        lensDone++;
+      }
+    }
+  }
+}
