@@ -2,6 +2,7 @@
 // SpiderCam Research | Cable driven robot team
 
 // Malek Necibi - mnygp@umsystem.edu
+// Ryan Jokuti - rjndn@mail.missouri.edu
 // 09/13/2020
 
 // global variables
